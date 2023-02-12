@@ -8,22 +8,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/:url", async (req, res) => {
+app.get("/:url", (req, res) => {
   console.log(req.query.url.replace(/ /g, "%20"));
   try {
-    const response = await fetch(req.query.url.replace(/ /g, "%20"), {
+    fetch(req.query.url.replace(/ /g, "%20"), {
       headers: req.headers,
       method: "GET",
-    });
-    try {
-      res.send(await response.json());
-    } catch (error) {
-      console.log(error);
-      res.send({ error: "Api Response is not proper" });
-    }
+    }).then((data) => data.json().then((d) => res.send(d)));
   } catch (error) {
-    console.log("error", error);
-    res.send(error);
+    console.log(error);
+    res.send({ error: "Api Response is not proper" });
   }
 });
 
@@ -43,6 +37,6 @@ app.post("/:url", (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(process.env.PORT || PORT, () => {
   console.log("Proxy server is running on port 5000");
 });
